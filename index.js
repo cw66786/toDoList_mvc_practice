@@ -94,7 +94,7 @@ const Controller = ((model,view)=>{
         if(event.target.id === "add-btn"){
             model.getItem();
            
-            view.render(list,view.listTemp(model.toDoList)) 
+           
             
             
         }else if(event.target.className === "remove-btn"){
