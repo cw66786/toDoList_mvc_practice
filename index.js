@@ -10,7 +10,7 @@ const View = (()=>{
     };
 
     const render = (el, tmp) => {
-        console.log(el)
+       
 		el.innerHTML = tmp;
 	};
 
@@ -18,7 +18,7 @@ const View = (()=>{
 	const listTemp = (arr) => {
 		let tmp = "";
 
-		arr.forEach((el,i) => {
+		arr.forEach((el) => {
 			tmp += `
         <li>
           <span>${el.item}</span>
@@ -42,19 +42,31 @@ const Model = ((view)=>{
 
     const getItem =()=>{
         let userInput = document.querySelector(view.domStrings.input);
-    
-        toDoList.push({item: userInput.value.trim(),id: toDoList.length +1});
-        userInput.value = "";
-        localStorage.setItem(0,toDoList);
-        view.render(document.querySelector(view.domStrings.list),view.listTemp(toDoList))
-        console.log(toDoList)
-
+        if(userInput.value.trim() !== ""){
+            toDoList.push({item: userInput.value.trim(),id: toDoList.length +1});
+            userInput.value = "";
+            localStorage.setItem("toDoList",JSON.stringify(toDoList));
+            view.render(document.querySelector(view.domStrings.list),view.listTemp(toDoList))
+        }
+       
+        
         
     
 };
 
 
-    return {toDoList,getItem};
+const removeItem = (item) =>{
+    let idToRemove = item;
+  toDoList = toDoList.filter(el =>
+    el.id != idToRemove
+  )
+
+ localStorage.setItem("toDoList",JSON.stringify(toDoList))
+ view.render(list,view.listTemp(toDoList)) 
+ 
+}
+
+    return {toDoList,getItem,removeItem};
 })(View);
 
 //*~~~~~ Controller
@@ -70,17 +82,29 @@ const Controller = ((model,view)=>{
         if( event.key === "Enter"){
            model.getItem();
             
-
+           view.render(list,view.listTemp(model.toDoList));
+           
         }
-})
-
-let addBtn =document.querySelector(view.domStrings.addBtn)
-
-     addBtn.addEventListener("click", () =>{
-    model.getItem();
-    view.render(list,view.listTemp(model.toDoList));
+    })
     
-})
+    
+    
+    document.addEventListener("click", (event) =>{
+       
+        if(event.target.id === "add-btn"){
+            model.getItem();
+           
+            view.render(list,view.listTemp(model.toDoList)) 
+            
+            
+        }else if(event.target.className === "remove-btn"){
+            model.removeItem(event.target.id)
+            
+            
+            
+        }
+        
+});
 
       const bootstrap = ()=>{
           
@@ -94,4 +118,5 @@ let addBtn =document.querySelector(view.domStrings.addBtn)
 })(Model,View);
 
 Controller.bootstrap();
+console.log(localStorage.getItem("toDoList"))
 
