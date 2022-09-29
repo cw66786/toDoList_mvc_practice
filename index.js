@@ -3,13 +3,14 @@
 const View = (()=>{
 
     const domStrings = {
-        listContainer: "#list-container",
+        list: "#list",
         addBtn: "#add-btn",
-        input: "#input-text",
+        input: "#text-input",
         removeBtn: "#remove-btn",
     };
 
     const render = (el, tmp) => {
+        console.log(el)
 		el.innerHTML = tmp;
 	};
 
@@ -20,8 +21,8 @@ const View = (()=>{
 		arr.forEach((el,i) => {
 			tmp += `
         <li>
-          <span>${el}</span>
-          <button id="${el[i+1]}" class="remove-btn">X</button>
+          <span>${el.item}</span>
+          <button id="${el.id}" class="remove-btn">X</button>
         </li>
       `;
 		});
@@ -34,39 +35,63 @@ const View = (()=>{
 
 //*~~~~~~ Model
 
-const Model = ((view,Controller)=>{
+const Model = ((view)=>{
 
-    let toDoList = [];
+    let toDoList = JSON.parse(localStorage.getItem("toDoList"))|| [];
+  
+
+    const getItem =()=>{
+        let userInput = document.querySelector(view.domStrings.input);
+    
+        toDoList.push({item: userInput.value.trim(),id: toDoList.length +1});
+        userInput.value = "";
+        localStorage.setItem(0,toDoList);
+        view.render(document.querySelector(view.domStrings.list),view.listTemp(toDoList))
+        console.log(toDoList)
+
+        
+    
+};
 
 
-
-    return {toDoList};
-})(View,Controller);
+    return {toDoList,getItem};
+})(View);
 
 //*~~~~~ Controller
 
 const Controller = ((model,view)=>{
 
+   let list = document.querySelector(view.domStrings.list);
    
-      
-
-        const getItem =()=>{
-
-            let userInput = document.querySelector(view.domStrings.input).value;
-            let addBtn = document.querySelector(view.domStrings.addBtn);
-
-            addBtn.addEventListener("click",()=>{
-                model.toDoList.push(userInput);
-                userInput.value = "";
-                console.log(Model.toDoList)
-        })
-    };
     
-       let list = document.querySelector(view.domStrings.listContainer);
 
+    document.addEventListener("keyup",(event)=>{
+     
+        if( event.key === "Enter"){
+           model.getItem();
+            
+
+        }
+})
+
+let addBtn =document.querySelector(view.domStrings.addBtn)
+
+     addBtn.addEventListener("click", () =>{
+    model.getItem();
     view.render(list,view.listTemp(model.toDoList));
+    
+})
 
-    return {getItem};
+      const bootstrap = ()=>{
+          
+          view.render(list,view.listTemp(model.toDoList));
+
+      }
+    
+
+
+    return {bootstrap};
 })(Model,View);
 
+Controller.bootstrap();
 
